@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest scikit-learn joblib pandas numpy
+
+      - name: Train model & run tests
+        run: |
+          python train.py
+          pytest -q
+
+      - name: Build Docker image
+        run: |
+          docker build -t ecom-fraud-demo:${{ github.sha }} .
